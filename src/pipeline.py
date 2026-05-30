@@ -1,8 +1,8 @@
-from src.data_loader import DataLoader
-from src.preprocessor import Preprocessor
-from src.feature_selector import FeatureSelector
-from src.model_trainer import ModelTrainer
-from src.evaluator import Evaluator
+from .data_loader import DataLoader
+from .preprocessor import Preprocessor
+from .feature_selector import FeatureSelector
+from .model_trainer import ModelTrainer
+from .evaluator import Evaluator
 
 class MalariaPipeline:
     def __init__(self, data_path):
