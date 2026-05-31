@@ -7,3 +7,5 @@ imbalanced-learn
 scipy
 pyreadstat
 joblib
+streamlit
+plotly
