@@ -3,7 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
   <img src="https://img.shields.io/badge/Scikit--Learn-1.3-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white" />
-  <img src="https://img.shields.io/badge/Jupyter-Notebook-F37626?style=for-the-badge&logo=jupyter&logoColor=white" />
+  <img src="https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" />
   <img src="https://img.shields.io/badge/Status-Complete-brightgreen?style=for-the-badge" />
   <img src="https://img.shields.io/badge/License-Academic-green?style=for-the-badge" />
 </p>
@@ -12,7 +12,7 @@
 
 ## 📌 Overview
 
-This project builds a machine learning pipeline to predict malaria prevalence across all 36 Nigerian states and the Federal Capital Territory using household-level survey data from the **Nigeria Malaria Indicator Survey (NMIS) 2021**. Nigeria bears approximately 27% of the global malaria burden — making data-driven, state-level risk prediction a critical tool for equitable resource allocation by national health programs. The pipeline compares three supervised classifiers — Logistic Regression, Decision Tree, and Random Forest — across a curated set of demographic, socioeconomic, and household features drawn from the NMIS dataset, ultimately identifying the strongest predictor of individual-level malaria RDT outcomes. This work is intended for public health researchers, data scientists, and policymakers interested in evidence-based malaria control in low- and middle-income country settings.
+This project builds a machine learning pipeline to predict malaria prevalence across all 36 Nigerian states and the Federal Capital Territory using household-level survey data from the **Nigeria Malaria Indicator Survey (NMIS) 2021**. Nigeria bears approximately 27% of the global malaria burden — making data-driven, state-level risk prediction a critical tool for equitable resource allocation by national health programs. The pipeline compares three supervised classifiers — Logistic Regression, Decision Tree, and Random Forest — and is deployed as an interactive Streamlit web application.
 
 ---
 
@@ -21,12 +21,24 @@ This project builds a machine learning pipeline to predict malaria prevalence ac
 ```
 malaria-prediction/
 │
+├── app/
+│   ├── main.py                    # Streamlit entry point
+│   ├── pages/
+│   │   ├── 1_Prediction.py        # Household form → malaria risk prediction
+│   │   └── 2_Risk_Map.py          # Nigeria state-level choropleth risk map
+│   └── utils/
+│       ├── predictor.py           # MalariaPredictor — loads model, runs inference
+│       └── map_data.py            # State coordinates + positivity rates
+│
 ├── data/
 │   ├── processed/                 # Cleaned, encoded, pipeline-ready data
 │   └── raw/                       # ⚠️ Not tracked by Git — place dataset here
 │       └── NGPR81FL.DTA           # NMIS 2021 household member recode (Stata format)
 │
 ├── models/                        # Serialised trained model artefacts (.pkl)
+│   ├── Random_Forest.pkl
+│   ├── Decision_Tree.pkl
+│   └── Logistic_Regression.pkl
 │
 ├── notebooks/                     # Exploratory and step-by-step analysis notebooks
 │
@@ -41,10 +53,9 @@ malaria-prediction/
 │   ├── evaluator.py               # ModelEvaluator — all five metrics + plots
 │   └── pipeline.py                # MalariaPipeline orchestrator (end-to-end)
 │
-├── tests/
-│   ├── test_data_loader.py        # Unit tests for data loading module
-│   ├── test_evaluator.py          # Unit tests for evaluation functions
-│   └── test_preprocessor.py      # Unit tests for preprocessing pipeline
+│── test_data_loader.py
+│── test_evaluator.py
+│── test_preprocessor.py
 │
 ├── .gitignore
 ├── requirements.txt
@@ -55,21 +66,9 @@ malaria-prediction/
 
 ## 📊 Data Source
 
-This project uses the **Nigeria Malaria Indicator Survey (NMIS) 2021** — a nationally representative household survey conducted by the National Population Commission (NPC) in partnership with the National Malaria Elimination Programme (NMEP) and USAID. The dataset covers all 37 administrative units of Nigeria. The **Household Member Recode** file (`NGPR81FL.DTA`) was used, containing **70,428 individual-level records**, of which **10,717 had a valid malaria RDT result** and form the analytical dataset.
+This project uses the **Nigeria Malaria Indicator Survey (NMIS) 2021** — a nationally representative household survey conducted by the National Population Commission (NPC) in partnership with the National Malaria Elimination Programme (NMEP) and USAID. The **Household Member Recode** file (`NGPR81FL.DTA`) was used, containing **70,428 individual-level records**, of which **10,717 had a valid malaria RDT result**.
 
-Features used in this project:
-
-- Malaria rapid diagnostic test (RDT) outcome *(target variable: `rdt_result`)*
-- Individual demographics — age, sex
-- Household characteristics — wealth index, floor material, wall material, roof material, household size, children under 5
-- WASH indicators — drinking water source
-- Malaria prevention — type of mosquito net slept under, electricity access
-- Geographic context — state of residence, geopolitical zone, residence type, education level
-
-**Accessing the dataset:**
-The NMIS 2021 dataset is publicly available through the [DHS Program data repository](https://dhsprogram.com/data/available-datasets.cfm). Access requires free registration and submission of a brief data request describing intended use. The specific file used in this project is `NGPR81FL.DTA` (Household Member Recode, Stata format).
-
-> ⚠️ The raw dataset is **not included** in this repository in compliance with the DHS Program data sharing policy. Please request access directly from the DHS Program and place the file in `data/raw/` before running the pipeline.
+> ⚠️ The raw dataset is **not included** in this repository in compliance with the DHS Program data sharing policy. Please request access at [dhsprogram.com](https://dhsprogram.com/data/available-datasets.cfm) and place the file in `data/raw/` before running the pipeline or the map page.
 
 ---
 
@@ -77,11 +76,46 @@ The NMIS 2021 dataset is publicly available through the [DHS Program data reposi
 
 | Model | Rationale |
 |---|---|
-| **Logistic Regression** | Serves as the interpretable baseline; its coefficients map directly to odds ratios, making it transparent for public health audiences unfamiliar with machine learning. |
-| **Decision Tree** | Captures non-linear relationships and generates human-readable decision rules that can be communicated to non-technical stakeholders and policy makers. |
-| **Random Forest** | Ensemble of decision trees that reduces overfitting and variance through majority voting, consistently the strongest performer on high-dimensional health survey data. |
+| **Logistic Regression** | Interpretable baseline; coefficients map to odds ratios for public health audiences |
+| **Decision Tree** | Captures non-linear relationships; generates human-readable decision rules |
+| **Random Forest** | Ensemble method; best performer — reduces overfitting via majority voting |
 
-All three models are trained under a unified evaluation framework using **10-fold stratified cross-validation** with **SMOTE oversampling** to address class imbalance (38% positive, 62% negative).
+All models trained with **10-fold stratified cross-validation** and **SMOTE oversampling** (38% positive, 62% negative class imbalance).
+
+---
+
+## 📈 Results
+
+| Model | Accuracy | Precision | Recall | F1 Score | AUC-ROC |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Logistic Regression | 0.6582 | 0.6527 | 0.6767 | 0.6643 | 0.7155 |
+| Decision Tree | 0.6745 | 0.6687 | 0.6921 | 0.6801 | 0.6795 |
+| **Random Forest** ✅ | **0.7213** | **0.7099** | **0.7487** | **0.7287** | **0.7989** |
+
+---
+
+## 🖥️ Streamlit App
+
+The trained Random Forest model is deployed as an interactive web application with two pages:
+
+- **🔬 Prediction** — User fills in household details (geopolitical zone, wealth index, net type, age, etc.) and receives an instant malaria risk assessment (Low / Moderate / High) with probability score
+- **🗺️ Risk Map** — Interactive choropleth map showing malaria positivity rates across all 37 Nigerian states derived from NMIS 2021 data
+
+### Run Locally
+
+```bash
+streamlit run app/main.py
+```
+
+### Deploy to Streamlit Cloud
+
+1. Push this repository to GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io)
+3. Connect your GitHub account
+4. Select this repo, set **Main file path** to `app/main.py`
+5. Click **Deploy**
+
+> ⚠️ The Risk Map page requires `data/raw/NGPR81FL.DTA` to be present. On Streamlit Cloud, upload it via the file uploader or use the cached version if already computed.
 
 ---
 
@@ -116,69 +150,36 @@ pip install -r requirements.txt
 
 ### 4. Add the dataset
 
-After receiving approval from the [DHS Program](https://dhsprogram.com/data/available-datasets.cfm), download the NMIS 2021 Household Member Recode file and place it at:
+Place `NGPR81FL.DTA` at `data/raw/NGPR81FL.DTA`.
 
-```
-data/raw/NGPR81FL.DTA
-```
-
-The pipeline will load this file at runtime. Do **not** commit the dataset to version control — it is already listed in `.gitignore`.
-
-### 5. Run the pipeline
+### 5. Run the ML pipeline
 
 ```bash
 python -m src.pipeline
 ```
 
----
+### 6. Run the Streamlit app
 
-## 📈 Results
-
-The pipeline was fully executed on the NMIS 2021 Household Member Recode dataset. All metrics are empirical results from **10-fold stratified cross-validation** on the SMOTE-resampled dataset of 10,717 records.
-
-### Model Performance — 10-Fold Stratified Cross-Validation
-
-| Model | Accuracy | Precision | Recall | F1 Score | AUC-ROC |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Logistic Regression | 0.6582 | 0.6527 | 0.6767 | 0.6643 | 0.7155 |
-| Decision Tree | 0.6745 | 0.6687 | 0.6921 | 0.6801 | 0.6795 |
-| **Random Forest** ✅ | **0.7213** | **0.7099** | **0.7487** | **0.7287** | **0.7989** |
-
-**Random Forest** achieves the best performance across all five metrics, with an F1 Score of **0.7287** and AUC-ROC of **0.7989**.
-
-### Dataset Summary
-
-| Metric | Value |
-|---|---|
-| Total records loaded | 70,428 |
-| Records with valid RDT result | 10,717 |
-| Malaria positive (target = 1) | 4,108 (38.3%) |
-| Malaria negative (target = 0) | 6,609 (61.7%) |
-| Features after selection | 19 out of 102 |
-| States represented | 37 (all 36 + FCT) |
-
-### Top Predictors (Feature Importance — Random Forest)
-
-The Random Forest feature selector retained **19 features** out of 102 one-hot encoded columns (importance threshold > 0.01). The most informative variables in order are:
-
-1. **State of residence** — reflects well-documented spatial heterogeneity in malaria burden across Nigerian states
-2. **Geopolitical zone** — North-West and South-South zones consistently record the highest prevalence
-3. **Wealth index** — lower socioeconomic status strongly associated with higher malaria positivity
-4. **Age** — older individuals have developed partial immunity; younger individuals carry higher risk
-5. **Net type** — sleeping under an insecticide-treated net is a strong protective predictor
+```bash
+streamlit run app/main.py
+```
 
 ---
 
-## 👨🏽‍💻 Author
+## 👩🏽‍💻 Author
 
-**Christianah Adekunle** 
+**Christianah Adekunle**
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Christianah%20Adekunle-0A66C2?style=flat-square&logo=linkedin)](https://linkedin.com/in/christianah-adekunle)
+[![GitHub](https://img.shields.io/badge/GitHub-i--am--christy-181717?style=flat-square&logo=github)](https://github.com/i-am-christy)
+[![Blog](https://img.shields.io/badge/Blog-i--am--christy.hashnode.dev-2962FF?style=flat-square&logo=hashnode)](https://i-am-christy.hashnode.dev)
 
 ---
 
 ## 🙏 Acknowledgements
 
-- **The DHS Program** — for making the NMIS 2021 dataset publicly accessible to researchers upon request, enabling nationally representative, state-level analysis of malaria in Nigeria.
-- **The Scikit-learn community** — for maintaining the open-source machine learning library that powers the entire modeling pipeline (Pedregosa et al., 2011).
+- **The DHS Program** — for making the NMIS 2021 dataset publicly accessible to researchers upon request
+- **The Scikit-learn community** — for the open-source ML library powering the pipeline (Pedregosa et al., 2011)
 
 ---
 
