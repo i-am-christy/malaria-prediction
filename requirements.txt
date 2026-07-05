@@ -9,3 +9,5 @@ pyreadstat
 joblib
 streamlit
 plotly
+pyreadstat
+openpyxl
