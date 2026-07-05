@@ -10,13 +10,13 @@
 
 ---
 
-## 📌 Overview
+## Overview
 
 This project builds a machine learning pipeline to predict malaria prevalence across all 36 Nigerian states and the Federal Capital Territory using household-level survey data from the **Nigeria Malaria Indicator Survey (NMIS) 2021**. Nigeria bears approximately 27% of the global malaria burden — making data-driven, state-level risk prediction a critical tool for equitable resource allocation by national health programs. The pipeline compares three supervised classifiers — Logistic Regression, Decision Tree, and Random Forest — and is deployed as an interactive Streamlit web application.
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 malaria-prediction/
@@ -32,7 +32,7 @@ malaria-prediction/
 │
 ├── data/
 │   ├── processed/                 # Cleaned, encoded, pipeline-ready data
-│   └── raw/                       # ⚠️ Not tracked by Git — place dataset here
+│   └── raw/                       # Not tracked by Git — place dataset here
 │       └── NGPR81FL.DTA           # NMIS 2021 household member recode (Stata format)
 │
 ├── models/                        # Serialised trained model artefacts (.pkl)
@@ -64,15 +64,15 @@ malaria-prediction/
 
 ---
 
-## 📊 Data Source
+## Data Source
 
 This project uses the **Nigeria Malaria Indicator Survey (NMIS) 2021** — a nationally representative household survey conducted by the National Population Commission (NPC) in partnership with the National Malaria Elimination Programme (NMEP) and USAID. The **Household Member Recode** file (`NGPR81FL.DTA`) was used, containing **70,428 individual-level records**, of which **10,717 had a valid malaria RDT result**.
 
-> ⚠️ The raw dataset is **not included** in this repository in compliance with the DHS Program data sharing policy. Please request access at [dhsprogram.com](https://dhsprogram.com/data/available-datasets.cfm) and place the file in `data/raw/` before running the pipeline or the map page.
+> The raw dataset is **not included** in this repository in compliance with the DHS Program data sharing policy. Please request access at [dhsprogram.com](https://dhsprogram.com/data/available-datasets.cfm) and place the file in `data/raw/` before running the pipeline or the map page.
 
 ---
 
-## 🤖 Models Used
+## Models Used
 
 | Model | Rationale |
 |---|---|

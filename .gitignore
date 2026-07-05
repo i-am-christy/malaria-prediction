@@ -7,3 +7,6 @@ data/raw/
 venv/
 *.dta
 *.DTA
+test_data_loader.py
+test_feature_selector.py
+test_preprocessor.py

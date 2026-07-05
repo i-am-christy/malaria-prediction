@@ -49,10 +49,21 @@ STATE_INFO = {
 def get_state_risk_data():
     loader = DataLoader("data/raw/NGPR81FL.DTA")
     df = loader.load()
-    state_codes = df["state"].copy()
+    
+    # Filter to tested rows first — same logic as preprocessor
+    df_filtered = df[df["rdt_result"].notna()].copy()
+    df_filtered = df_filtered[df_filtered["rdt_result"].isin([0.0, 1.0])].copy()
+    
+    # Save state codes from the filtered DataFrame
+    state_codes = df_filtered["state"].values
+    
+    # Now preprocess
     preprocessor = Preprocessor(df)
     df_processed = preprocessor.preprocessor(df)
-    df_processed["state"] = state_codes.values
+    
+    # Assign — lengths now match
+    df_processed["state"] = state_codes
+    
     df_grouped = df_processed.groupby("state")["rdt_result"].mean()
     rows = []
     for state_code, rate in df_grouped.items():
