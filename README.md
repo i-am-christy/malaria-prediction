@@ -124,7 +124,7 @@ streamlit run app/main.py
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/peteridowu/malaria-prediction.git
+git clone https://github.com/i-am-christy/malaria-prediction.git
 cd malaria-prediction
 ```
 
