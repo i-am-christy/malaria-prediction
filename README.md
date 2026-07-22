@@ -16,6 +16,12 @@ This project builds a machine learning pipeline to predict malaria prevalence ac
 
 ---
 
+## 🖥️ Streamlit App
+
+**Live demo:** (https://malaria-prediction-webapp.streamlit.app/)
+
+The trained Random Forest model is deployed as an interactive web application with two pages
+
 ## Project Structure
 
 ```
